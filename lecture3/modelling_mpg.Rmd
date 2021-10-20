@@ -1,7 +1,9 @@
 ---
 title: "Supervised Learning Introduction"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
@@ -70,6 +72,9 @@ tidy(linear_model)
 ### Decision tree fitting
 
 ```{r} 
+library(rpart)
+library(rpart.plot)
+
 # Fit a decision tree: predict hwy with all other variables
 dt <- rpart(hwy ~ ., data = train, 
             minsplit = 10,
@@ -78,19 +83,55 @@ dt <- rpart(hwy ~ ., data = train,
 rpart.plot(dt)
 ```
 
+### Predictions on training set
+
+```{r}
+train <- train %>% 
+  mutate(linear_model = predict(linear_model, newdata = train),
+         decision_tree = predict(dt, newdata = train)) %>% 
+  pivot_longer(linear_model:decision_tree,
+               names_to = 'model', 
+               values_to = 'predicted') 
+```
+
+### Add residuals 
+
+```{r}
+train <- train %>% 
+  mutate(residual = predicted - hwy)
+```
+
+### Plots residuals for training set 
+
+```{r}
+train %>% 
+  ggplot(aes(x = hwy, y = residual)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm') +  
+  facet_wrap(~model)
+```
+
 ### Predictions on test set
 
 ```{r}
-preds_lm <- predict(linear_model, test)
-preds_dt <- predict(dt, test)
-
-preds_df <- tibble(actual = test$hwy,
-                   linear_model = preds_lm,
-                   decision_tree = preds_dt) %>%
-  pivot_longer(c(linear_model, decision_tree),
-               names_to = 'model',
-               values_to = 'predicted')
+test <- test %>% 
+  mutate(linear_model = predict(linear_model, newdata = test),
+         decision_tree = predict(dt, newdata = test)) %>% 
+  pivot_longer(linear_model:decision_tree,
+               names_to = 'model', 
+               values_to = 'predicted') 
 ```
+
+### Predicted vs. actual
+
+```{r}
+test %>% 
+  ggplot(aes(x = hwy, y = predicted)) + 
+  geom_point() +
+  facet_wrap(~model) + 
+  geom_abline(slope = 1, intercept = 0, color = 'gray50')
+```
+
 
 ### Error metrics: MSE
 
@@ -122,33 +163,9 @@ mae <- function(actual, predicted){
 ### Accuracy metrics
 
 ```{r}
-preds_df %>% 
+test %>% 
   group_by(model) %>% 
-  summarise(mse = mse(actual, predicted),
-            rmse = rmse(actual, predicted),
-            mae = mae(actual, predicted))
+  summarise(mse = mse(hwy, predicted),
+            rmse = rmse(hwy, predicted),
+            mae = mae(hwy, predicted))
 ```
-
-### Plot: predicted vs. actual 
-
-```{r}
-preds_df %>% 
-  ggplot() + 
-  geom_point(aes(x = actual, y = predicted)) + 
-  facet_wrap(~model) + 
-  geom_abline(intercept = 0, slope = 1, color = 'gray50')
-```
-
-### Plot: residuals plot
-
-```{r}
-preds_df %>% 
-  mutate(residual = predicted - actual) %>% 
-  ggplot(aes(x = actual, y = residual)) + 
-  geom_point() +
-  geom_smooth(method = 'lm') +
-  facet_wrap(~model)
-```
-
-
-
