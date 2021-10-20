@@ -1,0 +1,259 @@
+---
+title: "programming"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Imports 
+
+```{r}
+library(tidyverse)
+```
+
+
+##### Task: write a function addition(x, y) which returns the sum of two arguments
+
+```{r}
+addition <- function(x, y){
+  return(x + y)
+}
+addition(1,2)
+```
+
+##### Task: Write a function to calculate the interquartile range of a vector
+
+```{r}
+iqr <- function(v){
+  upper <- as.numeric(quantile(v, 0.75))
+  lower <- as.numeric(quantile(v, 0.25))
+  return(upper - lower)
+}
+
+vector <- rnorm(10000)
+iqr(vector)
+```
+
+### mpg tasks
+
+##### Task: Calculate the average hwy MPG for a specified manufacturer 
+
+```{r}
+average_hwy_mpg <- function(m){
+  df <- mpg %>%
+    filter(manufacturer == m)
+  ans <- mean(df$hwy)
+  return(ans)
+}
+
+average_hwy_mpg('audi')
+```
+
+##### Task: Return the highest cty MPG for a specified class and drv
+
+```{r}
+max_cty_mpg <- function(c, d){
+  df <- mpg %>%
+    filter(class == c,
+           drv == d)
+  ans <- max(df$cty)
+  return(ans)
+}
+
+max_cty_mpg('suv', 'f')
+
+```
+
+##### Task: Calculate the correlation between cty MPG and displ for a specified class
+
+```{r}
+cor_mpg_displ <- function(c){
+  df <- mpg %>%
+    filter(class == c)
+  
+  ans <- cor(df$cty, df$displ)
+  
+  return(ans)
+}
+
+cor_mpg_displ('suv')
+```
+
+##### Task: write a function that prints “Even” or “Odd” depending if the input an even/odd number
+
+```{r}
+even_or_odd <- function(x){
+  
+  if (x %% 1 != 0){
+    print("Not an integer")
+  } else if (x %% 2 == 0){
+    print("Even") 
+  } else {
+    print("Odd")
+  }
+}
+
+even_or_odd(1521.5)
+
+```
+
+##### Task: Write a function that checks if a letter is a vowel or consonant
+
+```{r}
+is_vowel <- function(letter){
+  if (letter %in% c('a', 'e', 'i', 'o', 'u')){
+    return(TRUE)
+  } else{
+    return(FALSE)
+  }
+}
+
+is_vowel('b')
+
+```
+
+##### Task: Using a nested if-else statement, write a function that prints: 
+
+- ”Big and even!” if input is an even number that is greater than 10
+- “Big and odd!” if input is an odd number that is greater than 10
+- ”Small :(” otherwise
+
+```{r}
+
+number_func <- function(x)
+  if (x > 10){
+    if (x %% 2 == 0){
+      print("Big and even!")
+    } else {
+      print("Big and odd!") }
+  } else {
+    print("Small :(")
+  }
+number_func(11259125)
+```
+
+##### Task: Write a function that finds the roots of a quadratic equation given coefficients a, b, c
+
+```{r}
+find_roots <- function(a, b, c){
+  z = b**2 - 4*a*c
+  if (z < 0){
+    print("No real solution")
+    return()
+  }
+  
+  x1 = (-b + sqrt(z)) / 2*a
+  x2 = (-b - sqrt(z)) / 2*a
+
+  return(c(x1, x2))
+}
+
+find_roots(1, 10, -5)
+```
+
+##### Task: Write a function to change a word to lower case and remove vowels
+
+```{r}
+convert_string <- function(word){
+  word <- word %>%
+    tolower() %>%
+    str_remove_all('[aeiou]')
+  return(word)
+}
+
+convert_string('ESDA')
+```
+
+##### add a `engine_category` column to mpg that is “large” for cars with at least a 2L engine displacement (`displ`), and small for all other cars
+
+```{r}
+mpg %>% 
+  mutate(engine_category = if_else(displ >= 2, 'large', 'small'))
+```
+
+
+##### Task: write a for loop that prints the numbers 1 to 100 (multiples of 7)
+
+```{r}
+for (i in 1:100){
+  if (i %% 7 == 0){
+    print(i)
+  }
+}
+```
+
+### BEIS Headcount Tasks
+
+1. Write a for loop that reads each of the CSV files in the beis_headcount directory
+
+```{r}
+data_dir <- 'data/beis_headcount'
+files <- list.files(data_dir)
+for (f in files){
+  df <- read_csv(file.path(data_dir, f))
+}
+```
+
+2. For each year:
+
+- Total headcount
+
+```{r}
+data_dir <- 'data/beis_headcount'
+files <- list.files(data_dir)
+for (f in files){
+  df <- read_csv(file.path(data_dir, f)) %>%
+    drop_na(`Total Headcount`)
+  hc <- sum(df$`Total Headcount`)
+  year <- str_extract(f, "[0-9]+")
+  print(year)
+  print(hc)
+}
+```
+
+- Headcount of the Committee for Climate Change
+- Headcount of the UK Space Agency 
+
+```{r}
+data_dir <- 'data/beis_headcount'
+files <- list.files(data_dir)
+for (f in files){
+  df <- read_csv(file.path(data_dir, f))
+  hc <- df %>% 
+    filter(`Organisation name` == 'UK Space Agency') %>% 
+    pull(`Total Headcount`)
+  print(f)
+  print(hc)
+}
+```
+
+- Department with the largest headcount
+
+```{r}
+data_dir <- 'data/beis_headcount'
+files <- list.files(data_dir)
+for (f in files){
+  df <- read_csv(file.path(data_dir, f))
+  largest <- df %>% 
+    filter(`Total Headcount` == max(`Total Headcount`)) %>% 
+    pull(`Organisation name`)
+  print(f)
+  print(largest)
+}
+```
+
+3. Write a for loop to read all of the CSV files and combine them into a single data frame
+
+```{r}
+data_dir <- 'data/beis_headcount'
+files <- list.files(data_dir)
+all_df <- tibble()
+for (f in files){
+  df <- read_csv(file.path(data_dir, f))
+  all_df <- all_df %>% bind_rows(df)
+}
+```

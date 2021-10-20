@@ -1,0 +1,129 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+### Imports 
+
+```{r}
+library(tidyverse)
+```
+
+### Reading the Data
+
+```{r}
+turbines <- read_csv('data/canada_wind_turbines.csv')
+```
+
+### Scatterplot: capacity vs. diameter
+
+```{r}
+ggplot(data = turbines) + 
+  geom_point(aes(x = rotor_diameter_m, y = turbine_rated_capacity_k_w))
+```
+
+### Wind turbines by province (geom_bar)
+
+```{r}
+turbines %>%
+  ggplot() +
+  geom_bar(aes(x = province_territory))
+```
+
+### Wind turbines by province (geom_col)
+
+```{r}
+turbines %>%
+  count(province_territory) %>%
+  ggplot() +
+  geom_col(aes(x = province_territory, y = n))
+```
+
+### Order columns using fct_infreq()
+
+```{r}
+turbines %>%
+  mutate(province_territory = fct_rev(fct_infreq(province_territory))) %>%
+  ggplot() +
+  geom_bar(aes(x = province_territory))
+```
+
+### Order columns using fct_reorder()
+
+```{r}
+turbines %>%
+  count(province_territory) %>%
+  mutate(province_territory = fct_reorder(province_territory, n)) %>%
+  ggplot() + 
+  geom_col(aes(x = province_territory, y =n))
+```
+
+### Lump together provinces, plot capacity vs. height, coloured by province
+
+```{r}
+turbines %>%
+  mutate(province_territory = fct_lump(province_territory, 3)) %>%
+  ggplot() +
+  geom_point(aes(x = turbine_rated_capacity_k_w, 
+                 y = hub_height_m, 
+                 color = province_territory))
+```
+
+### Dodged bars
+
+```{r}
+turbines %>% 
+  drop_na(turbine_rated_capacity_k_w) %>%
+  mutate(large_cap = turbine_rated_capacity_k_w > 2000,
+         province_territory = fct_lump(province_territory, 3)) %>% 
+  ggplot() + 
+  geom_bar(aes(x = province_territory, fill = large_cap),
+           position = 'dodge')
+```
+
+### Copy these plots
+
+```{r}
+turbines %>% 
+  ggplot() + 
+  geom_hex(aes(x = hub_height_m, y = rotor_diameter_m))
+```
+
+```{r}
+turbines %>% 
+  mutate(commissioning_date = commissioning_date %>%
+           str_extract('[0-9]+') %>%
+           as.numeric()) %>%
+  ggplot(aes(x = commissioning_date, y = hub_height_m)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm')
+```
+
+```{r}
+turbines %>% 
+  mutate(commissioning_date = commissioning_date %>%
+           str_extract('[0-9]+')) %>%
+  ggplot() + 
+  geom_boxplot(aes(x = commissioning_date, y = turbine_rated_capacity_k_w)) + 
+  coord_flip()
+```
+
+```{r}
+turbines %>% 
+  drop_na(turbine_rated_capacity_k_w) %>%
+  mutate(province_territory = fct_lump(province_territory, 4)) %>% 
+  group_by(province_territory) %>% 
+  summarise(mean_capacity = mean(turbine_rated_capacity_k_w),
+            se = sd(turbine_rated_capacity_k_w)) %>%
+  ggplot(aes(x = province_territory, 
+             y = mean_capacity,
+             fill = mean_capacity,
+             ymin = mean_capacity - se,
+             ymax = mean_capacity + se)) + 
+  geom_col() + 
+  geom_errorbar()
+```
