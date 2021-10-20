@@ -1,0 +1,154 @@
+---
+title: "Supervised Learning Introduction"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+In this notebook we will work through a simple example of a supervised learning task. 
+
+We will use the `mpg` dataset.
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(broom)
+```
+
+### Preparing the data
+
+```{r}
+df <- mpg %>% 
+  select(hwy, displ, cyl, drv, class) %>%
+  mutate_if(is.character, as.factor) # Convert the character variables to factors
+```
+
+### Splitting into train and test sets
+
+```{r}
+set.seed(123)
+
+train <- sample_frac(df, 0.75) # Take 75% of the rows from df
+test <- anti_join(df, train) # All rows in df that are NOT in train
+```
+
+### Some exploratory analysis
+
+
+##### Categorical variables with boxplot
+
+```{r}
+df %>% 
+  pivot_longer(drv:class) %>%
+  ggplot() + 
+  geom_boxplot(aes(x = value, y = hwy)) + 
+  facet_wrap(~ name, scales = 'free') + 
+  coord_flip()
+```
+
+##### Continuous variables with hexplot
+
+```{r}
+df %>% 
+  pivot_longer(displ:cyl) %>%
+  ggplot() + 
+  geom_hex(aes(x = value, y = hwy)) + 
+  facet_wrap(~ name, scales = 'free')
+```
+
+### Linear model fitting
+
+```{r}
+# Fit a linear model: predict hwy with all other variables
+linear_model <- lm(hwy ~ ., data = train)
+
+# This function prints the model as a tidy data frame
+tidy(linear_model)
+```
+
+### Decision tree fitting
+
+```{r} 
+# Fit a decision tree: predict hwy with all other variables
+dt <- rpart(hwy ~ ., data = train, 
+            minsplit = 10,
+            minbucket = 2,
+            cp = 0.01)
+rpart.plot(dt)
+```
+
+### Predictions on test set
+
+```{r}
+preds_lm <- predict(linear_model, test)
+preds_dt <- predict(dt, test)
+
+preds_df <- tibble(actual = test$hwy,
+                   linear_model = preds_lm,
+                   decision_tree = preds_dt) %>%
+  pivot_longer(c(linear_model, decision_tree),
+               names_to = 'model',
+               values_to = 'predicted')
+```
+
+### Error metrics: MSE
+
+```{r}
+mse <- function(actual, predicted){
+  answer <- mean((predicted - actual)**2)
+  return(answer)
+}
+```
+
+### Error metrics: RMSE
+
+```{r}
+rmse <- function(actual, predicted){
+  answer <- sqrt(mse(actual, predicted))
+  return(answer)
+}
+```
+
+### Error metrics: MAE
+
+```{r}
+mae <- function(actual, predicted){
+  answer <- mean(abs(predicted - actual))
+  return(answer)
+}
+```
+
+### Accuracy metrics
+
+```{r}
+preds_df %>% 
+  group_by(model) %>% 
+  summarise(mse = mse(actual, predicted),
+            rmse = rmse(actual, predicted),
+            mae = mae(actual, predicted))
+```
+
+### Plot: predicted vs. actual 
+
+```{r}
+preds_df %>% 
+  ggplot() + 
+  geom_point(aes(x = actual, y = predicted)) + 
+  facet_wrap(~model) + 
+  geom_abline(intercept = 0, slope = 1, color = 'gray50')
+```
+
+### Plot: residuals plot
+
+```{r}
+preds_df %>% 
+  mutate(residual = predicted - actual) %>% 
+  ggplot(aes(x = actual, y = residual)) + 
+  geom_point() +
+  geom_smooth(method = 'lm') +
+  facet_wrap(~model)
+```
+
+
+
