@@ -1,0 +1,118 @@
+---
+title: "Pivoting and Facets"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+In this notebook we will investigate **pivoting** and **tidy data**. 
+
+### Imports 
+
+```{r}
+library(tidyverse)
+```
+
+
+One of the key tenets of the tidyverse is its reliance on tidy data. Tidy data has the following rules:
+
+- Each variable must have its own column.
+- Each observation must have its own row.
+- Each value must have its own cell.
+
+Take a look at the following dataset of energy consumption by sector and fuel: 
+
+```{r}
+energy <- read_csv('data/energy_consumption_by_sector_fuel.csv')
+```
+
+Which rule(s) of tidy data does the dataset violate? 
+
+### Task: use pivot_longer() to make the energy data tidy
+
+```{r}
+longer <- energy %>% 
+  pivot_longer(Solid_Fuel: Electricity,
+               names_to = 'fuel',
+               values_to = 'consumption') 
+```
+
+### Task: create the plot on the right with ggplot2 and geom_line()
+
+```{r}
+longer %>% 
+  ggplot() + 
+  geom_line(aes(x = Year, 
+                y = consumption, 
+                color = fuel, 
+                linetype = Sector))
+```
+
+### Task: use pivot_wider() to return the pivoted energy data frame back to its original
+
+```{r}
+longer %>% 
+  pivot_wider(names_from = fuel, values_from = consumption)
+```
+
+### Task: use pivot_wider() to create a new data frame with the following columns: Sector, fuel, 1970, 1971,…2017
+
+```{r}
+longer %>% 
+  pivot_wider(names_from = Year, values_from = consumption)
+```
+
+### Task: use facet_wrap() to create a bar plot for each sector (see right)
+
+```{r}
+# Creating the base plot
+plot <- longer %>% 
+  ggplot() + 
+  geom_col(aes(x = Year, 
+               y = consumption,
+               fill = fuel)) 
+
+plot + facet_wrap(~Sector)
+```
+
+### Task: use the `scales` argument to allow each panel to be freely scaled by consumption
+
+```{r}
+plot + facet_wrap(~Sector, scales = 'free_y')
+```
+
+### Task: create a bar plot of consumption vs. year, coloured by Sector, faceted by fuel
+
+```{r}
+longer %>% 
+  ggplot() + 
+  geom_col(aes(x = Year, 
+               y = consumption,
+               fill = Sector)) +
+  facet_wrap(~fuel, scales = 'free_y')
+```
+
+### Task: use facet_grid() to create a line plot for each fuel and sector (see right)
+
+```{r}
+longer %>% 
+  ggplot() + 
+  geom_line(aes(x = Year, 
+               y = consumption)) +
+  facet_grid(Sector ~ fuel)
+```
+
+### Task: replace facet_grid() with facet_wrap() and set the y scale to be free
+
+```{r}
+longer %>% 
+  ggplot() + 
+  geom_line(aes(x = Year, 
+                y = consumption)) +
+  facet_wrap(Sector ~ fuel, scales = 'free')
+```
+
+
+
