@@ -203,6 +203,8 @@ In the following code we will apply two pre-processing techniques to achieve bui
 - Standardisation 
 
 ```{r}
+set.seed(2021)
+
 # Downsample the data
 train_downsampled <- train %>% 
   downsample_by_occupancy() 
