@@ -1,0 +1,296 @@
+---
+title: "Data Wrangling with Power Station Dictionary"
+output:
+  html_document:
+    df_print: paged
+    theme: cerulean
+editor_options:
+  chunk_output_type: console
+---
+
+### Using this Document
+
+This is an R Markdown file, which incorporates text and code. The code is included in special cells called chunks like this:
+
+```{r}
+print("Hello world")
+```
+
+You can run the code in the cells by clicking the play button in the top right corner (or using a key command). I would advise that you enable "Chunk Output in Console" (under the settings symbol at the top of this window). There are more options that you can play with, such as enabling the Visual Editor for better readability.
+
+You can 'knit' an RMarkdown document to a number of different file formats. However, this won't work unless the code runs completely without errors! Some of the code is filled in already, but there are also a number of exercises for you to complete by editing the code in the chunks. **Your task is to work through this file completing the exercises.** You should know when you have completed it because you will be able to knit the document without errors. There are further exercises to complete at the end of this notebook if you wish.
+
+### Introduction and Imports
+
+In this notebook we will consolidate some of the lessons from Lecture 1, using functions from the `dplyr` package to manipulate data. We will be using the [The Power Station Dictionary](https://osuked.github.io/Power-Station-Dictionary/), which was developed by Ayrton Bourn (of UCL ESAIL). The dictionary matches different IDs used by various data sources for identifying power stations, making it easier to combine multiple datasets. The main dictionary is stored in the Power Station Dictionary [Github repo](https://github.com/OSUKED/Power-Station-Dictionary/).
+
+First let's import tidyverse.
+
+```{r}
+library(tidyverse)
+```
+
+### Reading the Dictionary
+
+Let's start by reading the dictionary and using `glimpse()` (from the `pillar` package, included in the tidyverse) to get an idea of what's in the data. We will read the csv straight from its URL in the Github repo:
+
+```{r message = FALSE}
+url <- 'https://raw.githubusercontent.com/OSUKED/Power-Station-Dictionary/shiro/data/dictionary/ids.csv'
+ids <- read_csv(url)
+glimpse(ids)
+```
+
+We can see that several IDs are included, such as `osuked_id`, `gppd_idnr`, but there is a lot of missing data. Let's investigate exactly how many `NAs` there are in each column. There are a couple of ways to do this. One way is to use `is.na()` to transform the dataframe to logical variables, indicating which values have missing data, then use `colSums()` (remembering that `TRUE` evaluates to 1, and `FALSE` to 0):
+
+```{r}
+ids %>% 
+  is.na() %>%
+  colSums()
+```
+
+Another method is to use the `skim()` function from `skimr`, which gives a lot of useful information about the dataframe, including proportion of complete data by column (`complete_rate`).
+
+```{r}
+library(skimr)
+
+skim(ids)
+```
+
+### Reading CO2 Emissions Data
+
+**Now it's your turn.** Here we will use a separate dataset from the [Dictionary Datasets Github repo](https://github.com/OSUKED/Dictionary-Datasets) which gives the verified CO2 emissions of power stations by year. The next code cell includes the URL for this dataset but the rest is left blank for you to fill in.
+
+**Exercise:** read the emissions data, assigning it to a variable called `co2`.
+
+```{r}
+url <- 'https://raw.githubusercontent.com/OSUKED/Dictionary-Datasets/main/datasets/verified-emissions/verified_emissions.csv'
+
+# read the CSV file
+co2 <- read_csv(url)
+
+```
+
+Now retrieve the number of NAs.
+
+**Exercise:** retrieve the number of NAs in each column
+
+```{r}
+# Getting number of NAs
+skim(co2)
+```
+
+You should have found that there are no `NA` values in this data. However, you may have noticed that the `tonnes_co2` column is a *character vector.* It should really be numeric as it deals with numeric data. The column has the type character because some of the values in the `tonnes_co2` column are 'Excluded', which is a string:
+
+```{r}
+co2 %>% filter(tonnes_co2 == 'Excluded')
+```
+
+If we try and change the type of that variable to `numeric`. it gives us a Warning because 'Excluded' is a string.
+
+```{r}
+co2$tonnes_co2 <- as.numeric(co2$tonnes_co2)
+```
+
+It would be better if we could replace those 'Excluded' values with `NA`. There are several ways to do this. The following code chunks demonstrate two methods, and you can then apply one of these to remove 'Excluded' from the dataframe. We will use dummy data, creating a list with `values <- (1, 2, 'missing_data')` so we aren't fiddling with the original dataframe.
+
+**Method 1: `na_if()`**
+
+```{r}
+values <- c(1, 2, 'missing_data') # Dummy data
+values <- na_if(values, 'missing_data')
+values
+```
+
+**Method 2: conditional indexing**
+
+```{r}
+values <- c(1, 2, 'missing_data') # Dummy data
+values[values == 'missing_data'] = NA # Wherever values is exactly equal to 'missing_data', set it to NA
+values
+```
+
+Use of one of these methods to remove the 'Excluded' values from the `tonnes_co2` column, replacing them with NA.
+
+**Exercise:** replace 'Excluded' in your `co2` dataframe with `NA`.
+
+```{r}
+# Replace Excluded with NA
+
+# Method 1: using na_if() (dplyr)
+co2 <- co2 %>% 
+  mutate(tonnes_co2 = as.numeric(na_if(tonnes_co2, 'Excluded')))
+
+# Method 2: conditional indexing (base R)
+# co2[co2 == 'Excluded'] = NA
+```
+
+### Joining the Data
+
+You should now have two clean dataframes:
+
+-   `ids`: the dictionary for matching different IDs
+-   `co2`: the verified emissions data
+
+We will now join these two together in a new dataframe called `joined_co2`. To do this, we will match the `account_id` variable in `co2` with the `eutl_id` in `ids`. **Note: you can find information about how different datasets can be matched to the Power Station Dictionary by looking up a specific power station on the PSD website, e.g. [Baglan Bay](https://osuked.github.io/Power-Station-Dictionary/objects/Baglan%20Bay/). For instance under verified emissions:**
+
+> The "eutl_id" field was used to match from the dictionary to the "account_id" field in this dataset
+
+Use a join that keeps all the rows in `ids` and adds columns from `rows` where there is a match. Try typing `help('mutate-joins')` in the console to bring up some tips on the different types of join functions in `dplyr`.
+
+**Exercise:** join `co2` and `ids` together in a new dataframe called `joined_co2`.
+
+*Hint*: You may need to rename a column. *Hint*: You may need to change the type of a variable.
+
+```{r}
+# Change the account_id variable in co2 to be the same type as in ids
+co2$account_id <- as.character(co2$account_id)
+
+joined_co2 <- co2 %>% 
+  rename(eutl_id = account_id) %>% 
+  right_join(ids, by = 'eutl_id')
+```
+
+```{r}
+co2$account_id <- as.character(co2$account_id)
+co2_renamed <- co2 %>% 
+  rename(eutl_id = account_id)
+
+joined_co2 <- left_join(ids, co2_renamed, by = 'eutl_id')
+
+
+```
+
+**Expected result:** You should have a dataframe with 1172 rows (as of 5/10/21).
+
+Notice that the number of rows `joined_co2` is greater than the number of rows in `ids`. Why is this?
+
+### Annual Output
+
+We will now introduce a third dataset giving the annual generation output (MWh) for power stations connected to the GB transmission network.
+
+**Exercise:** read the annual output data CSV file from the URL and assign it to a variable `output`.
+
+```{r}
+url <- 'https://raw.githubusercontent.com/OSUKED/Dictionary-Datasets/main/datasets/annual-output/annual-output.csv'
+
+# Read the output data
+output <- read_csv(url)
+
+```
+
+You may have noticed that this dataset identifies generators by `ngc_bmu_id`, not `eutl_id`. There are multiple `ngc_bmu_id` for a single `eutl_id` in many cases. Take a look at Drax power station in the `ids` data frame:
+
+```{r}
+ids %>% 
+  filter(str_detect(ngc_bmu_id, 'DRAX')) %>% 
+  select(ngc_bmu_id, name, eutl_id)
+```
+
+There are 9 unique values in the `ngc_bmu_id`, and only one `eutl_id`. This is an artifact of how generators are metered: each `ngc_bmu_id` is metered separately from the National Grid's perspective, and may for instance combust a different fuel, despite being located at the same site.
+
+In order to join up these two datasets, we will need to aggregate all the `ngc_bmu_id`-level outputs into a single `eutl_id`-level value for each `eutl_id`. To do that, we need to join `output` onto `ids`, matching by `ngc_bmu_id`. The first step will be to use a useful function `separate_rows()` which splits the different values in the `ngc_bmu_id` cell across multiple rows, creating a longer dataframe:
+
+```{r}
+ids_longer <- ids %>% 
+  separate_rows(ngc_bmu_id, sep = ',')
+ids_longer
+```
+
+This looks good, we have split the multiple `ngc_bmu_ids` across different rows. However, there is a problem in that the `ngc_bmu_id` column has spaces at the beginning and the end of values: such as `" MARK-2"`. From R's viewpoint, this is a problem: `" MARK-2"` is a different string from `"MARK-2"` - the two won't match when we try and join datasets.
+
+You may need to do some Googling for the next task!
+
+**Exercise:** remove the spaces from `ngc_bmu_id` in `ids_longer`.
+
+*Hint:* you could use `mutate()` with `str_remove()` or `str_replace()`
+
+*Hint:* remember you can check the documentation of a function with e.g. `?str_remove`
+
+```{r}
+# Remove spaces from ngc_bmu_id in ids_longer
+ids_longer <- ids_longer %>% 
+  mutate(ngc_bmu_id = str_remove(ngc_bmu_id, ' '))
+```
+
+Now that the spaces are removed, we can join `output` to `ids_longer` (use a join which keeps all the rows in `ids_longer`).
+
+**Exercise:** join `output` to `ids_longer` in a new dataframe called `joined_output.` Remove any additional columns such that you only have: `ngc_bmu_id`, `year`, `output_MWh` and `eutl_id`.
+
+*Hint:* use `select()` to choose columns to keep in a dataframe
+
+```{r}
+# Join output and ids_longer and select columns 
+joined_output <- output %>% 
+  right_join(ids_longer) %>% 
+  select(ngc_bmu_id, eutl_id, year, output_MWh) 
+```
+
+```{r}
+joined_output <- left_join(ids_longer, output) %>% 
+  select(ngc_bmu_id, eutl_id, year, output_MWh) 
+```
+
+
+Taking a look at this dataframe, there are clearly a lot of `ngc_bmu_id` which do not have a `eutl_id` We can drop those rows for now.
+
+```{r}
+joined_output <- joined_output %>% 
+  drop_na()
+```
+
+This is now a clean dataframe which shows the
+
+We should be able to aggregate `output_MWh` by EUTL_ID, ready to join to the rest of the data. To do this, we need two very useful functions from dplyr: `group_by()` and `summarise()`.
+
+**Exercise:** use `group_by()` and `summarise()` to aggregate `output_MWh` by `eutl_id` and `year`.
+
+*Hint:* if you are stuck, type `vignette('grouping')` to bring up a tutorial on grouping data with `dplyr`.
+
+```{r}
+# Aggregate joined_output
+joined_output <- joined_output %>%
+  group_by(eutl_id, year) %>% 
+  summarise(output_MWh = sum(output_MWh))
+```
+
+Finally, we will join the `joined_co2` and `joined_output` dataframes together in a new dataframe called `joined_all`.
+
+**Exercise:** join `joined_co2` and `joined_output`. and select the following columns: `eutl_id`, `name`, `year`, `tonnes_co2`, `output_MWh`. Drop any NAs.
+
+```{r}
+# Join joined_co2, joined_output, select columns, drop NAs
+joined_all <- joined_co2 %>% 
+  left_join(joined_output, by = c('eutl_id', 'year')) %>%
+  select(eutl_id, name, year, tonnes_co2, output_MWh) %>% 
+  drop_na()
+```
+
+**Expected result:** `joined_all` should have a dataframe of 229 rows (as of 06/10/2021).
+
+Let's add a new column to `joined_all` using the `mutate()` function, giving carbon intensity (CO2 emissions per unit generation).
+
+**Exercise:** add a `carbon_intensity` column to `joined_all` using `mutate()`
+
+```{r}
+# Add a new column: carbon_intensity
+joined_all <- joined_all %>% 
+  mutate(carbon_intensity = tonnes_co2 / output_MWh)
+```
+
+Finally, let's take a look at the first 5 rows:
+
+```{r}
+head(joined_all, 5)
+```
+
+Well done for making it to the end of the notebook! This was a non-trivial bit of data wrangling. There are further questions for you to answer in the next section, which dive into some analysis of the carbon intensity data you've derived.
+
+### Further Questions:
+
+Here are some questions for you to work on:
+
+1.  How many power stations are left in `joined_all`?
+2.  Some values for carbon intensity are `Inf`? Why? Try and filter these out.
+3.  What was the power station with the lowest carbon intensity in 2020? Look it up on the [Power Station Dictionary](https://osuked.github.io/Power-Station-Dictionary/) to find out what fuel type it is.
+4.  Filter the data to just show Drax power station. What do you notice about its carbon intensity between 2016--2020? What is the explanation for this?
+5.  Use `group_by()` and `summarise()` to create a new dataframe giving the minimum and maximum carbon intensity for each year, and the power station responsible.
