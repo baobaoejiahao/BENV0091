@@ -1,5 +1,6 @@
 ---
 title: "Occupancy Prediction"
+author: "Patrick de Mars"
 output:
   html_document:
     df_print: paged
