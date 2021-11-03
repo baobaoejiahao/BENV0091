@@ -1,7 +1,9 @@
 ---
 title: "Renewables Ninja"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
@@ -24,9 +26,9 @@ ninja <- read_csv('data/ninja_IOE_solar_pv.csv', skip = 3)
 
 ```{r}
 ninja <- ninja %>%
-  mutate(date = date(time),
-         week = week(time),
-         hour = hour(time)) 
+  mutate(date = lubridate::date(time),
+         week = lubridate::week(time),
+         hour = lubridate::hour(time)) 
 ```
 
 ### Plot mean electricity production by hour
@@ -54,8 +56,8 @@ acf(ninja$electricity, lag.max = 48)
 ### Splitting test/train
 
 ```{r}
-train <- ninja %>% filter(month(time) < 10)
-test <- ninja %>% filter(month(time) >= 10)
+train <- ninja %>% filter(lubridate::month(time) < 10)
+test <- ninja %>% filter(lubridate::month(time) >= 10)
 ```
 
 
@@ -143,7 +145,7 @@ train_preds %>%
                names_to = 'model') %>% 
   ggplot(aes(x = electricity, 
              y = value, 
-             color = as.factor(quarter(time)))) + 
+             color = as.factor(lubridate::quarter(time)))) + 
   geom_point(size = 0.4, alpha = 0.7) + 
   geom_abline(intercept = 0, slope = 1, color = 'blue') +
   facet_wrap(~model) + 
