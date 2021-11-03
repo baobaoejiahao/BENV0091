@@ -28,6 +28,13 @@ df <- read_excel(f, sheet = 'Data 1', skip = 2)
 names(df) <- c('date', 'WTI', 'Brent') # rename columns
 ```
 
+### Count the number of NAs in the WTI column
+
+```{r}
+sum(is.na(df$WTI))
+```
+
+
 ### Plot missing data
 
 ```{r}
