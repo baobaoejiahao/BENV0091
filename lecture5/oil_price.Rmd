@@ -34,7 +34,6 @@ names(df) <- c('date', 'WTI', 'Brent') # rename columns
 sum(is.na(df$WTI))
 ```
 
-
 ### Plot missing data
 
 ```{r}
