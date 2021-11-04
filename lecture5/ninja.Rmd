@@ -13,7 +13,6 @@ editor_options:
 library(tidyverse)
 library(rpart)
 library(randomForest)
-library(xgboost)
 ```
 
 ### Reading the data
