@@ -189,6 +189,29 @@ preds_df <- test_prep %>%
             persistence = electricity_24)
 ```
 
+### Function for plotting random day
+
+```{r}
+
+plot_random_day <- function(model_name){
+  # Sample a random date
+  random_date <- sample(unique(date(preds_df$time)), 1)
+
+  preds_df %>% 
+    filter(date(time) == random_date) %>% # filter to the date
+    select(time, electricity, model_name) %>% # select specified model and the actual values
+    pivot_longer(electricity:model_name) %>% # pivot  
+    ggplot(aes(x = time, y = value, color = name)) + 
+    geom_line() + 
+    theme_light()
+}
+
+plot_random_day('linear_model')
+
+
+```
+
+
 ### Calculate RMSE (test)
 
 ```{r}
