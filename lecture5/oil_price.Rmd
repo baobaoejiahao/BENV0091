@@ -78,7 +78,7 @@ map(df_clean, ~sum(is.na(.))) # verifying no NAs remain
 ```{r}
 # Create a data frame with the target date-time frequency (half-hour resolution)
 hh_df <- tibble(date = seq(df_clean$date[1],
-                           tail(df_clean$date, 1),
+                           tail(df_clean$date, 1) + days(1),
                            '30 mins')) 
 
 # Join the two dfs 

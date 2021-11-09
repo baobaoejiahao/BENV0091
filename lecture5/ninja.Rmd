@@ -48,7 +48,7 @@ ninja %>%
 ### Autocorrelation plot 
 
 ```{r}
-acf(ninja$electricity, lag.max = 48)
+acf(ninja$electricity, lag.max = 96)
 ```
 
 
