@@ -1,0 +1,95 @@
+---
+title: "Model Selection"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(boot)
+```
+
+### Pre-process data
+
+```{r}
+f <- 'data/vw_train.csv'
+train <- read_csv(f) %>% 
+  drop_na() %>%
+  mutate(washer_dryer = as.factor(
+    if_else(str_detect(appliances, 'washer_dryer'), 1, 0)
+    ))
+```
+
+### Model fitting
+
+```{r}
+# Defining formulae to try
+formulae <- c('washer_dryer ~ activePower + transient1',
+              'washer_dryer ~ activePower + transient1 + transient2',
+              'washer_dryer ~ current * voltage + transient1',
+              'washer_dryer ~ activePower + current + voltage')
+
+# K-fold CV 
+errors <- numeric()
+for (f in formulae){
+  fit <- glm(as.formula(f), family = 'binomial', data = train)
+  cv_fit <- cv.glm(train, fit, K = 10)
+  errors <- c(errors, cv_fit$delta[1])
+}
+
+# Print the best formula
+best_f <- formulae[which.min(errors)]
+print(best_f)
+``` 
+
+### Comparing validation and test scores with and without CV 
+
+```{r}
+fit <- glm(as.formula(best_f), family = 'binomial', data = train)
+preds <- predict(fit, test, type='response')
+preds <- if_else(preds > 0.5, 1, 0)
+test_accuracy <- mean(preds == test$washer_dryer)
+```
+
+```{r}
+fit_idx <- sample(1:nrow(train), 0.75*nrow(train))
+fit_df <- train[fit_idx,]
+val_df <- train[-fit_idx,]
+
+fit <- glm(as.formula(best_f), family = 'binomial', data = fit_df)
+preds <- predict(fit, val_df, type='response')
+preds <- if_else(preds > 0.5, 1, 0)
+val_accuracy <- mean(preds == val_df$washer_dryer)
+```
+
+
+
+```{r}
+# K-fold CV 
+errors <- numeric()
+for (f in formulae){
+  fit <- glm(as.formula(f), family = 'binomial', data = train)
+  cv_fit <- cv.glm(train, fit, K = 10)
+  errors <- c(errors, cv_fit$delta[1])
+}
+
+# Print the best formula
+best_f <- formulae[which.min(errors)]
+print(best_f)
+
+```
+
+```{r}
+fit_idx <- sample(1:nrow(train), 0.75*nrow(train))
+fit_df <- train[fit_idx,]
+val_df <- train[-fit_idx,]
+
+for (f in formulae){
+  fit <- glm(as.formula(f), family = 'binomial', data = fit_df)
+}
+```
+
+
