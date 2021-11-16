@@ -1,0 +1,118 @@
+---
+title: "Smart Meter Clustering"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+### Read data
+
+```{r}
+f <- 'data/LD2011_2014.txt'
+ 
+df <- read_delim(f, skip = 0, delim = ';') # data is separated by semi-colons
+names(df)[1] <- 'timestamp'
+```
+
+### Clean data, reduce to just Q1
+
+```{r}
+# Clean data and reduce 
+df_short <- df %>% 
+  mutate(timestamp = ymd_hms(timestamp),
+         hour = hour(timestamp)) %>% 
+  filter(quarter(timestamp) == 1) %>%
+  mutate_if(is.character, as.numeric) %>%
+  replace(is.na(.), 0)
+```
+
+### Produce avg daily demand profile
+
+```{r}
+
+# Summarise
+summ <- df_short %>% 
+  tibble() %>%
+  pivot_longer(-c(timestamp, hour),
+               names_to = 'customer',
+               values_to = 'kW') %>% 
+  group_by(customer, hour) %>%
+  summarise(mean_kW = mean(kW)) %>%
+  pivot_wider(names_from = c(customer), 
+              values_from = mean_kW)
+
+```
+
+### Counts NAs
+
+```{r}
+# Check no NAs
+map_dbl(summ, ~sum(is.na(.))) %>% sum()
+```
+
+### How many columns have 0 variance? 
+
+```{r}
+# Variance
+map(summ, ~sd(.)) == 0
+
+```
+
+### Remove the zero variance columns
+
+```{r}
+# Drop columns with 0 variance 
+sd_list <- map(summ, ~sd(.)) == 0
+to_drop <- names(sd_list[sd_list]) # list of columns to keep
+summ <- summ %>% 
+  select(-to_drop)
+```
+
+```{r}
+# Cluster
+cl <- summ %>%
+  select(-hour) %>%
+  scale() %>%
+  as.matrix() %>% 
+  t() %>%
+  kmeans(5)
+```
+
+### Plot the centroids
+
+```{r}
+
+# Plot centroids
+centers_df <- cl$centers %>% 
+  t() %>% 
+  data.frame() %>% 
+  mutate(hour = 1:24)
+centers_df %>% 
+  pivot_longer(-hour) %>%
+  ggplot(aes(x = hour, 
+             y = value, 
+             color = name)) + 
+  geom_line() + 
+  theme_light() + 
+  labs(x = 'Hour',
+       color = 'Cluster')
+```
+
+### Count cluster membership
+
+```{r}
+counts <- cl$cluster %>% 
+  table() %>% 
+  tibble()
+```
+
+
