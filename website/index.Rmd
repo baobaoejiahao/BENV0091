@@ -2,4 +2,17 @@
 title: "Energy Data Analysis"
 ---
 
-Hello, Website!
+Welcome to the course website for Energy Data Analysis (BENV0091) at UCL, taught by Patrick de Mars.
+
+This website currently functions as a location for students to find notebooks used in lectures, and might be a useful resource for code snippets, visualisation ideas etc.
+
+### Overview of Lecture Notebooks: 
+
+- **[Visualisation:](nbs/visualisation.html)** introduction to ggplot2. Data used: Canadian wind turbines. 
+- **[Programming:](nbs/programming.html)** covering programming concepts: functions, for loops and if/else statements. Data used: BEIS staff headcounts; MPG. 
+- **[Modelling (MPG):](nbs/modelling_mpg.html)** supervised learning comparing decision tree and linear regression models for predicting fuel efficiency. Data used: MPG.
+- **[Pivot:](nbs/pivot.html)** introduction to tidy data, pivoting and facets for visualisation. Data used: UK energy consumption by fuel sector.
+- **[Occupancy:](nbs/occupancy.html)** occupancy prediction using a logistic regression model. Data used: occupancy, temperature, humidity etc. for an office room.
+- **[Dates and Times:](nbs/datetimes.html)** short introduction to date-time data and lubridate. 
+- **[Oil Price:](nbs/oil_price.html)** visualisation, imputation and up/down-sampling of time series data. Data used: WTI oil price.
+- **[Renewables Ninja:](nbs/ninja.html)** machine learning techniques for forecasting solar PV. Data used: Renewables Ninja simulated solar PV production.

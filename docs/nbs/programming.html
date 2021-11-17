@@ -171,14 +171,6 @@ pre code {
 <div id="imports" class="section level3">
 <h3>Imports</h3>
 <pre class="r"><code>library(tidyverse)</code></pre>
-<pre><code>## ── Attaching packages ─────────────────────────────────────── tidyverse 1.3.1 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.3.5     ✓ purrr   0.3.4
-## ✓ tibble  3.1.5     ✓ dplyr   1.0.7
-## ✓ tidyr   1.1.4     ✓ stringr 1.4.0
-## ✓ readr   2.0.2     ✓ forcats 0.5.1</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter() masks stats::filter()
-## x dplyr::lag()    masks stats::lag()</code></pre>
 <div id="task-write-a-function-additionx-y-which-returns-the-sum-of-two-arguments" class="section level5">
 <h5>Task: write a function addition(x, y) which returns the sum of two arguments</h5>
 <pre class="r"><code>addition &lt;- function(x, y){
@@ -197,7 +189,7 @@ addition(1,2)</code></pre>
 
 vector &lt;- rnorm(10000)
 iqr(vector)</code></pre>
-<pre><code>## [1] 1.330685</code></pre>
+<pre><code>## [1] 1.344796</code></pre>
 </div>
 </div>
 <div id="mpg-tasks" class="section level3">
@@ -225,7 +217,6 @@ average_hwy_mpg(&#39;audi&#39;)</code></pre>
 }
 
 max_cty_mpg(&#39;suv&#39;, &#39;f&#39;)</code></pre>
-<pre><code>## Warning in max(df$cty): no non-missing arguments to max; returning -Inf</code></pre>
 <pre><code>## [1] -Inf</code></pre>
 </div>
 <div id="task-calculate-the-correlation-between-cty-mpg-and-displ-for-a-specified-class" class="section level5">
@@ -372,56 +363,6 @@ files &lt;- list.files(data_dir)
 for (f in files){
   df &lt;- read_csv(file.path(data_dir, f))
 }</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <ol start="2" style="list-style-type: decimal">
 <li>For each year:</li>
 </ol>
@@ -438,65 +379,15 @@ for (f in files){
   print(year)
   print(hc)
 }</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre><code>## [1] &quot;2017&quot;
-## [1] 24452</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;2018&quot;
-## [1] 22236</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;2019&quot;
-## [1] 28156</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;2020&quot;
-## [1] 28887</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;2021&quot;
+## [1] 24452
+## [1] &quot;2018&quot;
+## [1] 22236
+## [1] &quot;2019&quot;
+## [1] 28156
+## [1] &quot;2020&quot;
+## [1] 28887
+## [1] &quot;2021&quot;
 ## [1] 32849</code></pre>
 <ul>
 <li>Headcount of the Committee for Climate Change</li>
@@ -512,65 +403,15 @@ for (f in files){
   print(f)
   print(hc)
 }</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre><code>## [1] &quot;beis-workforce-august-2017.csv&quot;
-## [1] 116</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2018.csv&quot;
-## [1] 168</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2019.csv&quot;
-## [1] 198</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2020.csv&quot;
-## [1] 247</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2021.csv&quot;
+## [1] 116
+## [1] &quot;beis-workforce-august-2018.csv&quot;
+## [1] 168
+## [1] &quot;beis-workforce-august-2019.csv&quot;
+## [1] 198
+## [1] &quot;beis-workforce-august-2020.csv&quot;
+## [1] 247
+## [1] &quot;beis-workforce-august-2021.csv&quot;
 ## [1] 259</code></pre>
 <ul>
 <li>Department with the largest headcount</li>
@@ -585,65 +426,15 @@ for (f in files){
   print(f)
   print(largest)
 }</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre><code>## [1] &quot;beis-workforce-august-2017.csv&quot;
-## [1] &quot;HM Land Registry&quot;</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2018.csv&quot;
-## character(0)</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2019.csv&quot;
-## [1] &quot;UKRI&quot;</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2020.csv&quot;
-## [1] &quot;UKRI&quot;</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## [1] &quot;beis-workforce-august-2021.csv&quot;
+## [1] &quot;HM Land Registry&quot;
+## [1] &quot;beis-workforce-august-2018.csv&quot;
+## character(0)
+## [1] &quot;beis-workforce-august-2019.csv&quot;
+## [1] &quot;UKRI&quot;
+## [1] &quot;beis-workforce-august-2020.csv&quot;
+## [1] &quot;UKRI&quot;
+## [1] &quot;beis-workforce-august-2021.csv&quot;
 ## [1] &quot;UKRI&quot;</code></pre>
 <ol start="3" style="list-style-type: decimal">
 <li>Write a for loop to read all of the CSV files and combine them into a single data frame</li>
@@ -655,56 +446,6 @@ for (f in files){
   df &lt;- read_csv(file.path(data_dir, f))
   all_df &lt;- all_df %&gt;% bind_rows(df)
 }</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 22 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
-<pre><code>## Rows: 15 Columns: 4</code></pre>
-<pre><code>## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): Organisation name, Organisation 
-## type, Main, parent or 
-## sponsoring ...
-## dbl (1): Total Headcount</code></pre>
-<pre><code>## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
 
 

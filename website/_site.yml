@@ -8,22 +8,22 @@ navbar:
     - text: "Lecture Notebooks"
       icon: fa-book-open
       menu: 
-        - text: "Visualisation"
+        - text: "L2: Visualisation"
           href: nbs/visualisation.html
-        - text: "Programming"
+        - text: "L2: Programming"
           href: nbs/programming.html
-        - text: "Modelling (MPG)"
+        - text: "L3: Modelling (MPG)"
           href: nbs/modelling_mpg.html
-        - text: "Pivot"
+        - text: "L3: Pivot"
           href: nbs/pivot.html    
-        - text: "Occupancy"
+        - text: "L4: Occupancy"
           href: nbs/occupancy.html       
-        - text: "Date-Times"
+        - text: "L5: Dates and Times"
           href: nbs/datetimes.html       
-        - text: "Oil Price"
+        - text: "L5: Oil Price"
           href: nbs/oil_price.html       
-        - text: "Renewables Ninja"
-          href: nbs/ninja.html                 
+        - text: "L5: Renewables Ninja"
+          href: nbs/ninja.html             
     - text: "Worksheets"
       icon: fa-question
       menu:
