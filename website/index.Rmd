@@ -8,7 +8,7 @@ This website currently functions as a location for students to find notebooks us
 
 ### Overview of Lecture Notebooks: 
 
-- **[Visualisation:](nbs/visualisation.html)** introduction to ggplot2. Data used: Canadian wind turbines. 
+- **[Visualisation:](nbs/visualisation.html)** introduction to ggplot2. Data used: Canadian wind turbines.
 - **[Programming:](nbs/programming.html)** covering programming concepts: functions, for loops and if/else statements. Data used: BEIS staff headcounts; MPG. 
 - **[Modelling (MPG):](nbs/modelling_mpg.html)** supervised learning comparing decision tree and linear regression models for predicting fuel efficiency. Data used: MPG.
 - **[Pivot:](nbs/pivot.html)** introduction to tidy data, pivoting and facets for visualisation. Data used: UK energy consumption by fuel sector.
