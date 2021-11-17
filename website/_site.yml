@@ -23,10 +23,16 @@ navbar:
         - text: "L5: Oil Price"
           href: nbs/oil_price.html       
         - text: "L5: Renewables Ninja"
-          href: nbs/ninja.html             
+          href: nbs/ninja.html
+        - text: "foo"
+          href: programming.html
     - text: "Worksheets"
       icon: fa-question
       menu:
         - text: "Power Station Dictionary"
           href: worksheets/01-ps_dict.html
+output:
+  html_document:
+    theme: yeti
+    highlight: monochrome
 
