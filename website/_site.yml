@@ -1,9 +1,32 @@
-name: "my-website"
+name: "Energy Data Analysis"
 output_dir: "../docs"
 navbar:
-  title: "My Website"
+  title: "BENV0091"
   left:
     - text: "Home"
       href: index.html
-    - text: "About"
-      href: about.html
+    - text: "Lecture Notebooks"
+      icon: fa-book-open
+      menu: 
+        - text: "Visualisation"
+          href: nbs/visualisation.html
+        - text: "Programming"
+          href: nbs/programming.html
+        - text: "Modelling (MPG)"
+          href: nbs/modelling_mpg.html
+        - text: "Pivot"
+          href: nbs/pivot.html    
+        - text: "Occupancy"
+          href: nbs/occupancy.html       
+        - text: "Date-Times"
+          href: nbs/datetimes.html       
+        - text: "Oil Price"
+          href: nbs/oil_price.html       
+        - text: "Renewables Ninja"
+          href: nbs/ninja.html                 
+    - text: "Worksheets"
+      icon: fa-question
+      menu:
+        - text: "Power Station Dictionary"
+          href: worksheets/01-ps_dict.html
+
