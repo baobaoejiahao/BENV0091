@@ -24,6 +24,10 @@ navbar:
           href: nbs/oil_price.html       
         - text: "L5: Renewables Ninja"
           href: nbs/ninja.html
+        - text: "L6: PCA"
+          href: nbs/pca.html
+        - text: "L6: Model Selection"
+          href: nbs/model_selection.html          
     - text: "Worksheets"
       icon: fa-question
       menu:

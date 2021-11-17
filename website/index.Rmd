@@ -6,13 +6,29 @@ Welcome to the course website for Energy Data Analysis (BENV0091) at UCL, taught
 
 This website currently functions as a location for students to find notebooks used in lectures, and might be a useful resource for code snippets, visualisation ideas etc.
 
-### Overview of Lecture Notebooks: 
+### Overview of Lecture Notebooks
+
+#### Lecture 2
 
 - **[Visualisation:](nbs/visualisation.html)** introduction to ggplot2. Data used: Canadian wind turbines.
 - **[Programming:](nbs/programming.html)** covering programming concepts: functions, for loops and if/else statements. Data used: BEIS staff headcounts; MPG. 
+
+#### Lecture 3
+
 - **[Modelling (MPG):](nbs/modelling_mpg.html)** supervised learning comparing decision tree and linear regression models for predicting fuel efficiency. Data used: MPG.
 - **[Pivot:](nbs/pivot.html)** introduction to tidy data, pivoting and facets for visualisation. Data used: UK energy consumption by fuel sector.
+
+#### Lecture 4
+
 - **[Occupancy:](nbs/occupancy.html)** occupancy prediction using a logistic regression model. Data used: occupancy, temperature, humidity etc. for an office room.
+
+#### Lecture 5 
+
 - **[Dates and Times:](nbs/datetimes.html)** short introduction to date-time data and lubridate. 
 - **[Oil Price:](nbs/oil_price.html)** visualisation, imputation and up/down-sampling of time series data. Data used: WTI oil price.
 - **[Renewables Ninja:](nbs/ninja.html)** machine learning techniques for forecasting solar PV. Data used: Renewables Ninja simulated solar PV production.
+
+#### Lecture 6
+
+- **[PCA:](nbs/pca.html)** principal components analysis and clustering. Data used: smart meter
+- **[Model Selection](nbs/model_selection.html)**: model selection with k-fold CV. Data used: appliances (NILM)
