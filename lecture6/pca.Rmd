@@ -49,7 +49,7 @@ names(df)[1] <- 'timestamp'
 df_short <- df %>% 
   mutate(timestamp = ymd_hms(timestamp),
          hour = hour(timestamp),
-         wday = wday(timestamp)) %>% 
+         wday = wday(timestamp)) %>% # note that 1 --> Sunday, 2 --> Monday etc.
   filter(quarter(timestamp) %in% c(3,4)) %>%
   mutate_if(is.character, as.numeric)
 ```
