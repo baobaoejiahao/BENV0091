@@ -1,0 +1,11 @@
+name: electric_insights_app
+title:
+username:
+account: pwdemars
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5189718
+bundleId: 5285139
+url: https://pwdemars.shinyapps.io/electric_insights_app/
+when: 1637682599.54739
+lastSyncTime: 1637682599.5474

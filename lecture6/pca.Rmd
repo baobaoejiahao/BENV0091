@@ -63,7 +63,7 @@ map_dbl(df_short, ~sum(is.na(.))) %>% sum()
 ### Confirm no columns have 0 variance
 
 ```{r}
-sum(map_dbl(df_short, ~sd(.)) == 0)
+(map_dbl(df_short, ~sd(.)) == 0) %>% sum()
 ```
 
 ### Transform: row for each customer, column for each wday/hour
@@ -160,7 +160,7 @@ for (k in ks){
                 names_from = PC) %>%
     select(-row) %>% 
     kmeans(k)
-    vs <- c(vs, cls$tot.withinss)
+  vs <- c(vs, cls$tot.withinss)
 }
 
 plot(ks, vs, type = 'b', xlab = 'k', ylab = 'Total within-cluster sum of squares')
