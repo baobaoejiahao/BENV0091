@@ -5,3 +5,6 @@
 
 **.pptx
 ppt/*.pptx
+
+# L7 Rstudio files
+lecture7/electric_insights_app/rsconnect/
