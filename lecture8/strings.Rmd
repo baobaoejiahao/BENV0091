@@ -1,0 +1,41 @@
+---
+title: "Strings"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+library(tidyverse)
+```
+
+### Paste
+
+```{r}
+adjective <- 'frightful'
+paste('The weather oustide is', adjective)
+```
+
+### Using `paste0()` for a plot title
+
+```{r}
+x <- seq(-5, 5, 0.01)
+y <- -5*x**2 + x + 3 
+df <- tibble(x = x, y = y)
+
+title <- paste0("The maximum y-value of the curve is: \n", max(y))
+
+ggplot(df, aes(x = x, y = y)) + 
+  geom_line() + 
+  labs(title = title)
+```
+
+### The sprintf function
+
+```{r}
+vals <- rnorm(1000)
+
+sprintf('The mean is %.3f and the standard deviation is %.3f', mean(vals), sd(vals))
+```
+
+

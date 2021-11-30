@@ -1,0 +1,156 @@
+---
+title: "Carbon Intensity API"
+output: html_notebook
+editor_options: 
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(httr)
+library(jsonlite)
+library(tidyverse)
+library(lubridate)
+```
+
+### Current Carbon Intensity 
+
+```{r}
+# Make the request
+r <- GET('https://api.carbonintensity.org.uk/intensity')
+
+# Parse the results from JSON 
+parsed <- fromJSON(content(r, 'text'))
+
+# Unnest the intensity data 
+df <- parsed$data %>% unnest(cols = intensity)
+df
+```
+
+Now we will wrap this in a function: 
+
+```{r}
+get_carbon_intensity <- function(){
+  r <- GET('https://api.carbonintensity.org.uk/intensity')
+  parsed <- fromJSON(content(r, 'text'))
+  df <- parsed$data %>% unnest(cols = intensity)
+  return(df)
+}
+```
+
+
+### Next 24h Carbon Intensity
+
+The following code retrieves the forecast carbon intensity for the next 24 hours/
+
+```{r}
+# Current date time
+dt_now <- now() %>% format('%Y-%m-%dT%H:%MZ') # ISO8601 format
+
+# Use sprintf to format the URL 
+url <- sprintf('https://api.carbonintensity.org.uk/intensity/%s/fw24h', dt_now)
+
+# Make the request
+r <- GET(url)
+
+# Parse results
+parsed <- fromJSON(content(r, 'text'))
+df <- parsed$data %>% unnest(cols = intensity)
+
+head(df)
+```
+
+### Regional Carbon Intensity
+
+The code below retrieves current regional carbon intensities and prints the regions which have the lowest and highest intensities. 
+
+```{r}
+# Make the requeast
+r <- GET('https://api.carbonintensity.org.uk/regional')
+
+# Parse the JSON response
+parsed <- fromJSON(content(r, 'text'))
+
+# parsed$data$regions is a list of length 1
+# The following line retrieves this element, which is a nested data frame
+regions <- parsed$data$regions[[1]]
+
+# Unnest the intensity data
+regions_intensity <- regions %>% unnest(cols = intensity)
+
+# Retrieve the regions with lowest and highest CO2 intensity
+min_region <- regions_intensity$shortname[which.min(regions_intensity$forecast)]
+max_region <- regions_intensity$shortname[which.max(regions_intensity$forecast)]
+
+# Print results
+print(paste("Current time:", now()))
+print(paste("Lowest intensity region:", min_region))
+print(paste("Highest intensity region:", max_region))
+```
+
+### Carbon intensity between 2 dates
+
+The following function calculates the average carbon intensity between two dates. 
+
+Note that the API limits the date range to a maximum of 30 days.
+
+```{r}
+avg_co2_intensity <- function(date1, date2){
+  
+  # Create URL
+  url <- sprintf('https://api.carbonintensity.org.uk/intensity/%s/%s', date1, date2)
+
+  # Make request, parse, retrieve data
+  r <- GET(url)
+  parsed <- fromJSON(content(r, 'text'))
+  data <- parsed$data %>% unnest(intensity)
+  
+  # Calculate avg CO2
+  avg_co2_per_kwh <- mean(data$actual)
+  
+  return(avg_co2_per_kwh)
+}
+
+# Testing the function
+date1 <- '2017-10-01'
+date2 <- '2017-10-10'
+avg_co2_intensity(date1, date2)
+
+```
+
+
+
+```{r}
+url <- 'https://api.carbonintensity.org.uk/intensity/2020-01-01/2020-01-08'
+r <- GET(url)
+parsed <- fromJSON(content(r, 'text'))
+df <- parsed$data
+```
+
+```{r}
+# Convert to data
+df <- tibble(fromJSON(content(r, 'text'))$data)
+
+# Unnesting 
+df <- df %>% unnest(cols = c(intensity))
+
+# Convert to date time
+df <- df %>% 
+  mutate(from = ymd_hm(from),
+         to = ymd_hm(to))
+```
+
+
+```{r}
+# Plotting 
+df %>% 
+  pivot_longer(forecast:actual) %>%
+  ggplot(aes(x = from, y = value, color = name)) + 
+  geom_line() + 
+  theme_light() + 
+  scale_color_manual(values = c('blue', 'gray50')) + 
+  labs(x = 'Timestamp', 
+       y = 'Carbon Intensity (gCO2/kWh)')
+```
+
