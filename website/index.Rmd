@@ -35,6 +35,5 @@ This website currently functions as a location for students to find notebooks us
 
 #### Lecture 8
 
-
 - **[Carbon Intensity API:](nbs/carbon_intensity.html)** usage of the National Grid Carbon Intensity API
 - **[Met Office API:](nbs/met_office.html)** usage of the Met Office API for retrieving weather forecasts
