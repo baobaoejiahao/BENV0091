@@ -16,13 +16,38 @@ library(lubridate)
 
 ### Current Carbon Intensity 
 
+The first request will get the carbon intensity for current half-hour period:  
+
 ```{r}
 # Make the request
 r <- GET('https://api.carbonintensity.org.uk/intensity')
+```
 
+The response body is in JSON format, which we can visualise with `prettify()`
+
+```{r}
+prettify(content(r, 'text'))
+```
+
+To parse the results and convert it to a data frame, we first need to convert the JSON data to an R object. The `fromJSON()` function can be used to convert from JSON to a number of objects automatically. In this case, it will convert the response to a list.
+
+```{r}
 # Parse the results from JSON 
 parsed <- fromJSON(content(r, 'text'))
 
+class(parsed)
+```
+
+There is only one element in this list, `data`, which is a *nested* data frame: the `intensity` column is itself a data frame with three columns: `forecast`, `actual` and `index`. 
+
+```{r}
+print(names(parsed$data))
+print(names(parsed$data$intensity))
+```
+
+We can use `unnest()` to flatten this to a single, unnest data frame wiht 5 columns.
+
+```{r}
 # Unnest the intensity data 
 df <- parsed$data %>% unnest(cols = intensity)
 df
@@ -37,12 +62,14 @@ get_carbon_intensity <- function(){
   df <- parsed$data %>% unnest(cols = intensity)
   return(df)
 }
+
+get_carbon_intensity()
 ```
 
 
 ### Next 24h Carbon Intensity
 
-The following code retrieves the forecast carbon intensity for the next 24 hours/
+The following code retrieves the forecast carbon intensity for the next 24 hours:
 
 ```{r}
 # Current date time
@@ -118,39 +145,3 @@ date2 <- '2017-10-10'
 avg_co2_intensity(date1, date2)
 
 ```
-
-
-
-```{r}
-url <- 'https://api.carbonintensity.org.uk/intensity/2020-01-01/2020-01-08'
-r <- GET(url)
-parsed <- fromJSON(content(r, 'text'))
-df <- parsed$data
-```
-
-```{r}
-# Convert to data
-df <- tibble(fromJSON(content(r, 'text'))$data)
-
-# Unnesting 
-df <- df %>% unnest(cols = c(intensity))
-
-# Convert to date time
-df <- df %>% 
-  mutate(from = ymd_hm(from),
-         to = ymd_hm(to))
-```
-
-
-```{r}
-# Plotting 
-df %>% 
-  pivot_longer(forecast:actual) %>%
-  ggplot(aes(x = from, y = value, color = name)) + 
-  geom_line() + 
-  theme_light() + 
-  scale_color_manual(values = c('blue', 'gray50')) + 
-  labs(x = 'Timestamp', 
-       y = 'Carbon Intensity (gCO2/kWh)')
-```
-
