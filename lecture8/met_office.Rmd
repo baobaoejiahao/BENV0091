@@ -1,7 +1,9 @@
 ---
 title: "Met Office API"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
@@ -18,11 +20,11 @@ library(lubridate)
 
 In the code below we retrieve the site list and convert the response into a data frame. 
 
-Note that my `API_KEY` is hidden - it is available as an environment variable in a special file called `.Renviron`. You can read more about setting up your R environment variables [here](https://daattali.gitbooks.io/stat545-ubc-github-io/content/bit003_api-key-env-var.html).
+Note that my `API_KEY` is hidden - it is available as an environment variable in a special file called `.Renviron`. You can read more about setting up your R environment variables [here](https://daattali.gitbooks.io/stat545-ubc-github-io/content/bit003_api-key-env-var.html). You can replace the `Sys.getnv(...)` code with your API key (as a string), but you should be careful not to upload this to Github!
 
 ```{r}
 # Your API key goes here! I am hiding mine :) 
-API_KEY = Sys.getenv('MET_API_KEY')
+API_KEY <- Sys.getenv('MET_API_KEY')
 
 # Getting site list
 url <- sprintf('http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/sitelist?key=%s', API_KEY)
@@ -64,7 +66,7 @@ The forecast is found in the `DV` component. `data$SiteRep$DV$Location$Period$Re
 The following code runs a for loop over the data frames to retrieve the forecast. 
 
 ```{r}
-# Define 
+# Create an empty vector to store the results
 forecast <- numeric()
 for (df in data$SiteRep$DV$Location$Period$Rep){
   forecast <- c(forecast, as.integer(df$S))
@@ -75,16 +77,23 @@ qplot(1:length(forecast), forecast, geom = 'line') +
        y = "Wind Speed (mph)")
 ```
 
-### Retrieving the Feels Like Temperature (F) for tomorrow
+### Retrieving the Feels Like Temperature (F) for tomorrow at midday
 
-An additional query parameter can be added to the URL specifiying a time if we just want the forecast for one period. The code below uses this request to get the Feels Like Temperature (F) for 24 hours ahead. 
+An additional query parameter can be added to the URL specifiying a time if we just want the forecast for one period. The code below uses this request to get the Feels Like Temperature (F) for tomorrow at midday. **Note: the forecasts are only available at 3 hour intervals, so forecasts only exist for 0, 3, 6,..., 21h. It is not possible to retrieve a forecast for 1am!** 
+
+First, we must define the time we want to request for: we will use lubridate period functions (`days()` and `hours()`) for this:
+
+```{r}
+# Specify time to get forecast and convert to ISO 8601 format (lubridate)
+time <- (today() + days(1) + hours(12)) %>% # Time tomorrow at midday
+  format_ISO8601() 
+```
+
+Now we will make the request, parse the data and print the results
 
 ```{r}
 # Specify location ID 
 location_id <- '352205'
-
-# Specify time to get forecast for and convert to ISO 8601 format (lubridate)
-time <- (now() + hours(24)) %>% format_ISO8601() 
 
 # Putting together the URL
 url <- sprintf('http://datapoint.metoffice.gov.uk/public/data/val/wxfcs/all/json/%s?res=3hourly&time=%s&key=%s', location_id, time, API_KEY)
@@ -95,5 +104,8 @@ data <- fromJSON(content(r, 'text'))
 
 # Retrieve the Feels Like Temperature
 feels_like_temp <- data$SiteRep$DV$Location$Period$Rep$F
-print(sprintf("The feels like temperature this time tomorrow will be: %sC", feels_like_temp))
+print(sprintf("The feels like temperature at 12:00 tomorrow will be: %sC", feels_like_temp))
 ```
+
+
+

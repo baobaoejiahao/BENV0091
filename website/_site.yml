@@ -27,7 +27,11 @@ navbar:
         - text: "L6: PCA"
           href: nbs/pca.html
         - text: "L6: Model Selection"
-          href: nbs/model_selection.html          
+          href: nbs/model_selection.html    
+        - text: "L8: Carbon Intensity API"
+          href: nbs/carbon_intensity.html
+        - text: "L8: Met Office API"
+          href: nbs/met_office.html           
     - text: "Worksheets"
       icon: fa-question
       menu:

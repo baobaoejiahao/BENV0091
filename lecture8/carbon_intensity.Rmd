@@ -1,7 +1,9 @@
 ---
 title: "Carbon Intensity API"
-output: html_notebook
-editor_options: 
+output:
+  html_document:
+    df_print: paged
+editor_options:
   chunk_output_type: console
 ---
 
@@ -66,6 +68,80 @@ get_carbon_intensity <- function(){
 get_carbon_intensity()
 ```
 
+### Carbon Intensity for Past Week
+
+We will write three functions:
+
+- Retrieve and parse CO2 intensity data between two dates
+- Calculate average CO2 intensity for last week
+- Identify period of highest CO2 intensity in the last week
+
+The following function retrieves the carbon intensity data between 2 dates. 
+
+```{r}
+co2_intensity_data <- function(date1, date2){
+  
+  # Create URL
+  url <- sprintf('https://api.carbonintensity.org.uk/intensity/%s/%s', date1, date2)
+
+  # Make request, parse, retrieve data
+  r <- GET(url)
+  parsed <- fromJSON(content(r, 'text'))
+  data <- parsed$data %>% unnest(intensity)
+  
+  return(data)
+}
+```
+
+Next we calculate the average CO2 intensity for the last week. The following function uses the code above to calculate the average CO2 intensity for the past week. It uses `days()` from lubridate, which can be used to add or subtract periods to/from datetimes.
+
+```{r}
+avg_co2_intensity_past_week <- function(){
+  # Date 7 days ago
+  d1 <- today() - days(7)
+  d2 <- today()
+  
+  # Request and parse data
+  data <- co2_intensity_data(d1, d2)
+  
+  return(mean(data$actual))
+}
+
+avg_co2_intensity_past_week()
+```
+
+The next function returns both the period and the value of the maximum carbon intensity in the past week. 
+
+```{r}
+max_co2_intensity_past_week <- function(){
+    # Date 7 days ago
+  d1 <- today() - days(7)
+  d2 <- today()
+  
+  # Request and parse data
+  data <- co2_intensity_data(d1, d2)
+  
+  # The maximum intensity
+  max_intensity <- max(data$actual)
+  
+  # Filter the data and extract the period of maximum intensity
+  # (we use the beginning of the period (`from`))
+  max_period <- data %>% 
+    filter(actual == max_intensity) %>% 
+    pull(from)
+    
+  return(c(max_intensity, max_period))
+}
+
+result <- max_co2_intensity_past_week()
+result
+```
+
+Some string formatting can be used to better present this result: 
+
+```{r}
+print(sprintf("The maximum carbon intensity during the past week was %s gCO2/kWh at %s", result[1], result[2]))
+```
 
 ### Next 24h Carbon Intensity
 
@@ -114,34 +190,4 @@ max_region <- regions_intensity$shortname[which.max(regions_intensity$forecast)]
 print(paste("Current time:", now()))
 print(paste("Lowest intensity region:", min_region))
 print(paste("Highest intensity region:", max_region))
-```
-
-### Carbon intensity between 2 dates
-
-The following function calculates the average carbon intensity between two dates. 
-
-Note that the API limits the date range to a maximum of 30 days.
-
-```{r}
-avg_co2_intensity <- function(date1, date2){
-  
-  # Create URL
-  url <- sprintf('https://api.carbonintensity.org.uk/intensity/%s/%s', date1, date2)
-
-  # Make request, parse, retrieve data
-  r <- GET(url)
-  parsed <- fromJSON(content(r, 'text'))
-  data <- parsed$data %>% unnest(intensity)
-  
-  # Calculate avg CO2
-  avg_co2_per_kwh <- mean(data$actual)
-  
-  return(avg_co2_per_kwh)
-}
-
-# Testing the function
-date1 <- '2017-10-01'
-date2 <- '2017-10-10'
-avg_co2_intensity(date1, date2)
-
 ```
