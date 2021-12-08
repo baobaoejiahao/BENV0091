@@ -9,13 +9,13 @@ editor_options:
 
 ### Imports
 
-```{r}
+```{r message=FALSE}
 library(tidyverse)
 library(tidymodels)
 library(lubridate)
 ```
 
-First we will read the training data and arrange it by time. Arranging the data by time allows us to easily split the data into temporally continuous train and test sets, avoiding data leakage. In addition, we will use just 10% of the data: this is purely to speed up the computational cost of fitting models, feel free to decrease or increase this as you like. We will also add some time variables (these are not currently implemented in the `recipes` package).
+First we will read the data and arrange it by time. Arranging the data by time allows us to easily split the data into temporally continuous train and test sets, avoiding data leakage. In addition, we will use just 10% of the data: this is purely to speed up the computational cost of fitting models, feel free to decrease or increase this as you like. We will also add some time variables (these are not currently implemented in the `recipes` package).
 
 ```{r}
 df <- read_csv('data/vw_train.csv') %>% 
@@ -61,7 +61,7 @@ rec
 
 Here we define the model we want to use (in this case a random forest model). The `set_engine()` function specifies the backend software that will be used to fit the model. 
 
-We can specify that we want to tune hyperparameters such as `mtry` as `trees`. Later on, we will use the resamples defined above to tune these parameters.  
+We can specify that we want to tune hyperparameters such as `min_n` and `tree_depth`. Later on, we will use k-fold cross validation to tune these parameters.  
 
 ```{r}
 model_spec <- boost_tree(mtry = 5,
@@ -86,9 +86,9 @@ wflow <- workflow() %>%
 
 ##### Resampling
 
-The following step uses either bootstrapping or k-fold CV (or v-fold here) to create a set of **resamples**. For k-fold CV, k-1 of the resamples are used to fit the model, and the 1 remaining is used for validation. In the case of bootstrapping, each split consists of a fitting dataset (which has the same size as the original data), and a validation set which consists of all the remaining data that was not included in the boostrap resample.
+The following step uses either bootstrapping or k-fold CV (AKA v-fold) to create a set of **resamples**. For k-fold CV, k-1 of the resamples are used to fit the model, and the 1 remaining is used for validation. In the case of bootstrapping, each split consists of a fitting dataset (which has the same size as the original data), and a validation set which consists of all the remaining data that was not included in the boostrap resample.
 
-In this case we will `group_vfold_cv()`, which keeps all data of a specified *group* together, and does not split groups across folds. Since the data is time series, this helps mitigate data leakage. There are several other resampling methods (see the `rsample` documentation).
+In this case we will `group_vfold_cv()`, which keeps all data of a specified *group* together, and does not split groups across folds. Since the data is time series, this helps mitigate problems of data leakage, where data points from similar time periods find their way into both the training and validation sets. Other resampling methods are commented out below (see the `rsample` documentation).
 
 ```{r}
 n_resamples <- 5
@@ -100,10 +100,11 @@ resamples <- group_vfold_cv(train, week, n_resamples) # for grouped k-fold CV: d
 
 ##### Grid Search
 
-Here, we will tune the model. In this case we will use a grid search approach, testing out combinations of the hyperparameters. First we will define a grid. **Note: you can leave this stage out and instead define the dimensions of the grid, tidymodels will decide some suitable parameters for you.**
+Now we will tune the hyperparameters with a grid search approach, testing out combinations of hyperparameters. First we will define a grid, giving values for the two hyperparameters we want to tune. If your code is taking a while to run, you may want to reduce the number of hyperparameter settings.
 
 ```{r}
 grid <- expand.grid(min_n = c(20, 50, 100), tree_depth = c(10, 20, 50))
+grid
 ```
 
 The code below uses our defined grid to search for the optimal combination of hyperparameters. For each combination of parameters, a model will be fit to each of the resamples created above. **Note: this may take a while to run, depending on how many parameter combinations you have selected!**
@@ -132,7 +133,7 @@ autoplot(tune_output, metric = 'accuracy')
 
 ### Finalising the model and making predictions
 
-Having tuned the hyperparameters, we can finally train on the entire training dataset and finally evaluate the model on the held-out test set.
+Having tuned the hyperparameters, we can finally train on the entire training dataset and evaluate the model on the held-out test set.
 
 The `finalize_workflow()` function is used to add the tuned parameters to the workflow. 
 
@@ -142,18 +143,23 @@ final_wflow <- wflow %>%
 final_wflow
 ```
 
-The workflow `final_wflow` contains all the information in our training pipeline, including pre-processing steps and the hyper-parameters used in the random forest.
+We can see that `final_wflow` contains all the information in our training pipeline, including pre-processing steps, the model specification and the best hyperparameters. 
 
-The workflow can now be trained on the entire training dataset.
+The workflow can now be trained on the entire training dataset:
 
 ```{r}
 final_fit <- fit(final_wflow, train)
-preds <- predict(final_fit, test)
+```
 
+And we can make predictions on the training and test sets: 
+
+```{r}
+# Make predictions on training data; evaluate accuracy
 preds_train <- predict(final_fit, train)
 actual_train <- train$appliances
 acc_train <- mean(preds_train == actual_train)
 
+# Make predictions on test data; evaluate accuracy
 preds_test <- predict(final_fit, test)
 actual_test <- test$appliances
 acc_test <- mean(preds_test == actual_test)
