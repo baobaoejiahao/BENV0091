@@ -7,9 +7,14 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+
 ### Imports
 
-```{r message=FALSE}
+```{r}
 library(tidyverse)
 library(tidymodels)
 library(lubridate)
