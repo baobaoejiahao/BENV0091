@@ -40,4 +40,4 @@ This website currently functions as a location for students to find notebooks us
 
 #### Lecture 9
 
-- **[Tidymodels:](nbs/tidymodels_vw.html)** usage of the National Grid Carbon Intensity API
+- **[Tidymodels:](nbs/tidymodels_vw.html)** using tidymodels for non-intrusive load monitoring analysis
