@@ -1,0 +1,166 @@
+---
+title: "Tidymodels"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+### Imports
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(lubridate)
+```
+
+First we will read the training data and arrange it by time. Arranging the data by time allows us to easily split the data into temporally continuous train and test sets, avoiding data leakage. In addition, we will use just 10% of the data: this is purely to speed up the computational cost of fitting models, feel free to decrease or increase this as you like. We will also add some time variables (these are not currently implemented in the `recipes` package).
+
+```{r}
+df <- read_csv('data/vw_train.csv') %>% 
+  sample_frac(0.1, replace = FALSE) %>% # choose 10% of the data 
+  arrange(timestamp) %>% # sort data by timestamp 
+  mutate(week = week(timestamp)) %>% # add a week number column
+  drop_na(appliances)
+```
+
+Next we will split the data into train/test sets, using `initial_time_split()`: 
+
+```{r}
+set.seed(123)
+data_split <- initial_time_split(df, prop = 3/4)
+
+train <- training(data_split)
+test <- testing(data_split)
+```
+
+### Creating a recipe
+
+A recipe (created with the `recipe()` function) describes the pre-processing of the data.
+
+```{r}
+rec <- 
+  recipe(appliances ~ ., data = train) %>% # define formula
+  update_role(id, timestamp, new_role = "ID") %>% # set timestamp as ID 
+  step_mutate(power = current * voltage) %>% # create a new variable: power
+  step_other(appliances, threshold = 0.01, skip = TRUE) %>%
+  step_dummy(all_nominal_predictors()) %>% # create dummy vars 
+  step_zv(all_predictors()) %>% # remove zero variance predictors
+  step_impute_knn(all_numeric_predictors())  # impute missing values
+```
+
+Calling the `rec` object gives a summary of the pre-processing steps:
+
+```{r}
+rec
+```
+
+
+### Specifying a model
+
+Here we define the model we want to use (in this case a random forest model). The `set_engine()` function specifies the backend software that will be used to fit the model. 
+
+We can specify that we want to tune hyperparameters such as `mtry` as `trees`. Later on, we will use the resamples defined above to tune these parameters.  
+
+```{r}
+model_spec <- boost_tree(mtry = 5,
+                         min_n = tune(), 
+                         tree_depth = tune(), 
+                         trees = 500) %>%
+  set_engine('xgboost') %>% 
+  set_mode('classification')
+```
+
+### Building the workflow
+
+A workflow is used to combine a recipe and a model. The recipe can be used to both fit a model, and use it for predictions, while robustly following all the steps in the recipe to ensure the data is pre-processed correctly. 
+
+```{r}
+wflow <- workflow() %>%
+  add_recipe(rec) %>% 
+  add_model(model_spec)
+```
+
+### Hyperparameter tuning
+
+##### Resampling
+
+The following step uses either bootstrapping or k-fold CV (or v-fold here) to create a set of **resamples**. For k-fold CV, k-1 of the resamples are used to fit the model, and the 1 remaining is used for validation. In the case of bootstrapping, each split consists of a fitting dataset (which has the same size as the original data), and a validation set which consists of all the remaining data that was not included in the boostrap resample.
+
+In this case we will `group_vfold_cv()`, which keeps all data of a specified *group* together, and does not split groups across folds. Since the data is time series, this helps mitigate data leakage. There are several other resampling methods (see the `rsample` documentation).
+
+```{r}
+n_resamples <- 5
+
+# resamples <- bootstraps(data = train, times = n_resamples) # for bootstrap resamples
+# resamples <- vfold_cv(train, n_resamples) # for k-fold CV 
+resamples <- group_vfold_cv(train, week, n_resamples) # for grouped k-fold CV: data points in the same week are kept together
+```
+
+##### Grid Search
+
+Here, we will tune the model. In this case we will use a grid search approach, testing out combinations of the hyperparameters. First we will define a grid. **Note: you can leave this stage out and instead define the dimensions of the grid, tidymodels will decide some suitable parameters for you.**
+
+```{r}
+grid <- expand.grid(min_n = c(20, 50, 100), tree_depth = c(10, 20, 50))
+```
+
+The code below uses our defined grid to search for the optimal combination of hyperparameters. For each combination of parameters, a model will be fit to each of the resamples created above. **Note: this may take a while to run, depending on how many parameter combinations you have selected!**
+
+```{r}
+doParallel::registerDoParallel() # Optional: specifies that we want to use parallel processing
+tune_output <- 
+  tune_grid(wflow, 
+            resamples = resamples,
+            grid = grid)
+```
+
+##### Outputting Best Parameters
+
+We can use `show_best()` to output the best hyperparameters: 
+
+```{r}
+show_best(tune_output, metric = 'accuracy')
+```
+
+And the `autoplot()` function is set up to plot the results of the hyperparameter tuning:
+
+```{r}
+autoplot(tune_output, metric = 'accuracy')
+```
+
+### Finalising the model and making predictions
+
+Having tuned the hyperparameters, we can finally train on the entire training dataset and finally evaluate the model on the held-out test set.
+
+The `finalize_workflow()` function is used to add the tuned parameters to the workflow. 
+
+```{r}
+final_wflow <- wflow %>% 
+  finalize_workflow(select_best(tune_output, metric = 'accuracy'))
+final_wflow
+```
+
+The workflow `final_wflow` contains all the information in our training pipeline, including pre-processing steps and the hyper-parameters used in the random forest.
+
+The workflow can now be trained on the entire training dataset.
+
+```{r}
+final_fit <- fit(final_wflow, train)
+preds <- predict(final_fit, test)
+
+preds_train <- predict(final_fit, train)
+actual_train <- train$appliances
+acc_train <- mean(preds_train == actual_train)
+
+preds_test <- predict(final_fit, test)
+actual_test <- test$appliances
+acc_test <- mean(preds_test == actual_test)
+
+print(sprintf("Train accuracy: %.4f", acc_train))
+print(sprintf("Test accuracy: %.4f", acc_test))
+```
+
+There is still a significant amount of overfitting. How could this be avoided?
+
